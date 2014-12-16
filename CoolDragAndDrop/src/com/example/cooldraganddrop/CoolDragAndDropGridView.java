@@ -1,9 +1,9 @@
 package com.example.cooldraganddrop;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 public class CoolDragAndDropGridView extends SpanVariableGridView implements View.OnTouchListener {
 
@@ -24,6 +25,7 @@ public class CoolDragAndDropGridView extends SpanVariableGridView implements Vie
 	private int mDragPosition = AdapterView.INVALID_POSITION;
 	private int mDropPosition = AdapterView.INVALID_POSITION;
 	private int mCurrentPosition = AdapterView.INVALID_POSITION;
+	private Boolean mToDelete = false;
 	private Runnable mDelayedOnDragRunnable = null;
 
 	ScrollingStrategy mScrollingStrategy = null;
@@ -31,6 +33,8 @@ public class CoolDragAndDropGridView extends SpanVariableGridView implements Vie
 	WindowManager.LayoutParams mWindowParams = null;
 	private ImageView mDragImageView = null;
 	private boolean mDragAndDropStarted = false;
+	private Rect mTrashRect = new Rect();
+	private boolean isInTrash = false;
 	private DragAndDropListener mDragAndDropListener = null;
 	private OnTrackTouchEventsListener mOnTrackTouchEventsListener = null;
 
@@ -47,8 +51,12 @@ public class CoolDragAndDropGridView extends SpanVariableGridView implements Vie
 		void onDraggingItem(int from, int to);
 
 		void onDropItem(int from, int to);
+		
+		void onDeleteItem(int position);
 
 		boolean isDragAndDropEnabled(int position);
+		
+		void isDeleteEnabled(Boolean flag);
 	}
 
 	public CoolDragAndDropGridView(Context context) {
@@ -72,6 +80,10 @@ public class CoolDragAndDropGridView extends SpanVariableGridView implements Vie
 	private void initialize() {
 		setOnTouchListener(this);
 		setChildrenDrawingOrderEnabled(true);
+	}
+	
+	public void setTrashRect(Rect rect){
+		this.mTrashRect = rect;
 	}
 
 	public void startDragAndDrop() {
@@ -150,7 +162,6 @@ public class CoolDragAndDropGridView extends SpanVariableGridView implements Vie
 		v.setVisibility(View.INVISIBLE);
 
 		if (mDragAndDropListener != null) {
-
 			mDragAndDropListener.onDragItem(mDragPosition);
 		}
 
@@ -172,17 +183,25 @@ public class CoolDragAndDropGridView extends SpanVariableGridView implements Vie
 		destroyDragImageView();
 
 		removeCallbacks(mDelayedOnDragRunnable);
+		if(mDragAndDropListener != null && mToDelete){
+			mDropPosition = AdapterView.INVALID_POSITION;
+			System.out.println("is going to delete:"+mDragPosition);
+			mDragAndDropListener.onDeleteItem(mDragPosition);
+			mToDelete = false;
+			mDragAndDropListener.isDeleteEnabled(false);
+		}else{
 
 		View v = getChildAt(mDropPosition);
 		v.setVisibility(View.VISIBLE);
 
 		v.clearAnimation();
+		
+
 
 		if (mDragAndDropListener != null && mDropPosition != AdapterView.INVALID_POSITION) {
-
 			mDragAndDropListener.onDropItem(mDragPosition, mDropPosition);
 		}
-
+		}
 		mDragPosition = mDropPosition = mCurrentPosition = AdapterView.INVALID_POSITION;
 		mDragAndDropStarted = false;
 	}
@@ -204,7 +223,7 @@ public class CoolDragAndDropGridView extends SpanVariableGridView implements Vie
 
 		final int tempDropPosition = pointToPosition(mCurrentPosition, x, y);
 
-		if (mDragAndDropListener != null && mDropPosition != tempDropPosition && tempDropPosition != AdapterView.INVALID_POSITION) {
+		if (mDragAndDropListener != null && mDropPosition != tempDropPosition && tempDropPosition != AdapterView.INVALID_POSITION &&(!mToDelete)) {
 
 			removeCallbacks(mDelayedOnDragRunnable);
 
@@ -239,12 +258,26 @@ public class CoolDragAndDropGridView extends SpanVariableGridView implements Vie
 			}
 
 		}
+		
+		System.out.println(x+" "+y);
 
 		if (mDragImageView != null) {
 
 			mWindowParams.x = x - mDragPointX + mDragOffsetX;
 			mWindowParams.y = y - mDragPointY + mDragOffsetY;
 			mWindowManager.updateViewLayout(mDragImageView, mWindowParams);
+			
+			if(x<80 && y<0){
+				mToDelete = true;
+				mDragAndDropListener.isDeleteEnabled(true);
+				//mDragImageView.setBackgroundResource(R.drawable.card_highlighted);
+				mDragImageView.setBackgroundResource(R.color.rred);
+			}else{
+				mToDelete = false;
+				mDragAndDropListener.isDeleteEnabled(false);
+				//mDragImageView.setBackgroundResource(R.drawable.card);
+				mDragImageView.setBackgroundResource(R.color.tianlan);
+			}
 		}
 
 	}

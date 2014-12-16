@@ -2,19 +2,25 @@ package com.example.cooldraganddrop;
 
 import java.util.LinkedList;
 import java.util.List;
-
 import android.app.Activity;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ScrollView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity implements CoolDragAndDropGridView.DragAndDropListener, SpanVariableGridView.OnItemClickListener,
 		SpanVariableGridView.OnItemLongClickListener {
 
 	ItemAdapter mItemAdapter;
 	CoolDragAndDropGridView mCoolDragAndDropGridView;
+	ImageView mTrash;
+	Rect mTrashRect = new Rect();
 	List<Item> mItems = new LinkedList<Item>();
 
 	@Override
@@ -23,8 +29,9 @@ public class MainActivity extends Activity implements CoolDragAndDropGridView.Dr
 		setContentView(R.layout.activity_main);
 
 		ScrollView scrollView = (ScrollView) findViewById(R.id.scrollView);
+		
 		mCoolDragAndDropGridView = (CoolDragAndDropGridView) findViewById(R.id.coolDragAndDropGridView);
-
+		mTrash = (ImageView)findViewById(R.id.ico_trash);
 		for (int r = 0; r < 2; r++) {
 			mItems.add(new Item(R.drawable.ic_local_search_airport_highlighted, 2, "Airport", "Heathrow"));
 			mItems.add(new Item(R.drawable.ic_local_search_bar_highlighted, 1, "Bar", "Connaught Bar"));
@@ -42,6 +49,7 @@ public class MainActivity extends Activity implements CoolDragAndDropGridView.Dr
 
 		mItemAdapter = new ItemAdapter(this, mItems);
 		mCoolDragAndDropGridView.setAdapter(mItemAdapter);
+		
 		mCoolDragAndDropGridView.setScrollingStrategy(new SimpleScrollingStrategy(scrollView));
 		mCoolDragAndDropGridView.setDragAndDropListener(this);
 		mCoolDragAndDropGridView.setOnItemLongClickListener(this);
@@ -51,6 +59,10 @@ public class MainActivity extends Activity implements CoolDragAndDropGridView.Dr
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		mItemAdapter.notifyDataSetChanged();
+		mTrash.getGlobalVisibleRect(mTrashRect); 
+		Toast.makeText(getApplicationContext(), mTrash.getLeft()+":"+mTrash.getTop()+":"+mTrash.getRight()+":"+mTrash.getBottom(),
+			     Toast.LENGTH_SHORT).show();
+		mCoolDragAndDropGridView.setTrashRect(mTrashRect);
 		super.onPostCreate(savedInstanceState);
 	}
 
@@ -92,10 +104,27 @@ public class MainActivity extends Activity implements CoolDragAndDropGridView.Dr
 		}
 
 	}
+	
+	@Override
+	public void onDeleteItem(int position){
+		mItems.remove(position);
+		mItemAdapter.notifyDataSetChanged();
+		System.out.println("deleted:"+position);
+	}
 
 	@Override
 	public boolean isDragAndDropEnabled(int position) {
 		return true;
 	}
+	
+	@Override
+	public void isDeleteEnabled(Boolean flag){
+		if(flag)
+			mTrash.setBackgroundResource(R.color.rred);
+		else
+			mTrash.setBackgroundResource(R.color.hui);
+	}
+	
+
 
 }
