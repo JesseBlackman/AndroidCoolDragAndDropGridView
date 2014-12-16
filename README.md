@@ -3,13 +3,13 @@
 		
 ### ScreenShots
 1<br />  
-![](https://github.com/JesseBlackman/AndroidCoolDragAndDropGridView/CoolDragAndDrop/ScreenShots/screenshot_1.png
+![](https://github.com/JesseBlackman/AndroidCoolDragAndDropGridView/blob/master/CoolDragAndDrop/ScreenShots/screenshot_1.png
 )<br />  
 2<br />  
-![](https://github.com/JesseBlackman/AndroidCoolDragAndDropGridView/CoolDragAndDrop/ScreenShots/screenshot_2.png
+![](https://github.com/JesseBlackman/AndroidCoolDragAndDropGridView/blob/master/CoolDragAndDrop/ScreenShots/screenshot_2.png
 )<br />  
 3<br />  
-![](https://github.com/JesseBlackman/AndroidCoolDragAndDropGridView/CoolDragAndDrop/ScreenShots/screenshot_3.png
+![](https://github.com/JesseBlackman/AndroidCoolDragAndDropGridView/blob/master/CoolDragAndDrop/ScreenShots/screenshot_3.png
 )<br />  
 		
 		
